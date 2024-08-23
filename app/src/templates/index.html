@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            background-image: url('/static/images/background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .modal-content {
+            background-color: rgba(255, 255, 255, 0.9);
+            top: 50%;
+        }
+
+        .chat-history {
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #0c3f4a;
+            border-radius: 5px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-message,
+        .agent-message {
+            max-width: 75%;
+            padding: 10px;
+            border-radius: 15px;
+            margin: 10px 0;
+            color: #fff;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-message {
+            background-color: #007bff;
+            margin-left: auto;
+            border-bottom-right-radius: 0;
+            justify-content: right;
+        }
+
+        .agent-message {
+            background-color: #505050;
+            margin-right: auto;
+            border-bottom-left-radius: 0;
+        }
+
+        #chat-input-container {
+            display: flex;
+            align-items: center;
+            background-color: #0c3f4a00; /* #0c3f4a; */
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        #chat-input-container i {
+            margin-right: 10px;
+            color: #fff;
+        }
+
+        #chat-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+
+        #mic-button {
+            margin-left: 10px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .centered-button {
+            position: fixed;
+            top: 51%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1d363e;
+            border: none;
+            box-shadow: 0 0 8px #fff;
+            color: #fff;
+        }
+
+        #chat-button:hover {
+            color: #fff;
+        }
+
+        /* Modal */
+        .modal-dialog {
+            max-width: 50%;
+        }
+
+        .modal-dialog-centered {
+            display: flex;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .modal-content {
+            background-color: #114f5c;
+        }
+
+        .modal-header {
+            border-bottom: none;
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: center;
+            color: #fff;
+        }
+
+        .modal-title img {
+            margin-right: 10px;
+        }
+
+        .btn-close {
+            background-color: #fff;
+            opacity: 1;
+        }
+
+        .btn-secondary {
+            background-color: #1d363e;
+            border-color: #1d363e;
+        }
+
+        .btn-secondary:hover {
+            background-color: #163239;
+            border-color: #163239;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <button id="chat-button" class="btn centered-button">Chat With Us</button>
+    </div>
+
+    <!-- The Modal -->
+    <div id="chatModal" class="modal fade" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="chatModalLabel" style="color: #fff;"><img src="../static/images/logo.svg" />&nbsp;Chat with Us</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="chat-history" class="chat-history">
+                    </div>
+                    <div id="chat-input-container">
+                        <i class="fas fa-user-circle"></i>
+                        <input type="text" id="chat-input" class="form-control" placeholder="Type your message here">
+                        <i id="mic-button" class="fas fa-microphone"></i>
+                    </div>
+                </div>
+                <div class="modal-footer" style="justify-content: center;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        var modal = new bootstrap.Modal(document.getElementById('chatModal'));
+
+        var btn = document.getElementById('chat-button');
+
+        btn.onclick = function() {
+            modal.show();
+        }
+
+        document.getElementById('chat-input').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); 
+                
+                const userComment = event.target.value.trim();
+                if (!userComment) return; 
+
+                const chatHistoryDiv = document.getElementById('chat-history');
+                const chatHistory = Array.from(chatHistoryDiv.children).map(child => {
+                    return {
+                        user: child.className.includes('user-message') ? child.innerText : null,
+                        agent: child.className.includes('agent-message') ? child.innerText : null,
+                    };
+                });
+
+                chatHistoryDiv.innerHTML += `
+                    <div class="user-message">
+                        <span class="">${userComment}</span>
+                        <i class="fas fa-user-circle ms-2" style="color: #fff;"></i>
+                    </div>`;
+                
+                chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        user_comment: userComment, 
+                        chat_history: chatHistory.filter(c => c.user || c.agent) 
+                    })
+                })
+                .then(response => response.json())
+                .then(result => {
+
+                    chatHistoryDiv.innerHTML += `
+                        <div class="agent-message">
+                            <i class="fas fa-robot me-2" style="color: #fff;"></i>
+                            <span class="">${result.agent_response}</span>
+                        </div>`;
+                    
+                    event.target.value = '';
+                    
+                    chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+                });
+            }
+        });
+
+        document.getElementById('mic-button').addEventListener('click', function() {
+            alert('Microphone clicked! Implement speech-to-text functionality here.');
+            // TODO - Add audio hook
+        });
+
+
+    </script>
+</body>
+
+</html>
