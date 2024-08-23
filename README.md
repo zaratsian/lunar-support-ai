@@ -1,6 +1,6 @@
 # Lunar Support AI
 
-Lunar Support AI is a service chatbot built on Google Cloud. It it meant to be used as an example and re-purposed with your own customizations and wrapped in your own prod security, standard, and best practices. It leverages Google's Gemini LLM to provide grounded and curated responses to customer inquiries. The chatbot is designed to integrate with your own knowledge bases and vector stores, ensuring that your customer questions get answered based on grounded information.
+Lunar Support AI is a service chatbot built on Google Cloud. It it meant to be used as an example and re-purposed with your own customizations and wrapped in your own prod security, organizational standards, and best practices. It leverages Google's Gemini LLM to provide grounded and curated responses to customer inquiries. The chatbot is designed to integrate with your own knowledge bases and vector stores, ensuring that your customer questions get answered based on grounded information.
 
 ## Features
 
