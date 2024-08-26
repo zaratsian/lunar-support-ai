@@ -22,19 +22,28 @@ Before you begin, ensure you have the following:
 - A custom knowledge base or vector store (optional, but recommended)
 - Google Cloud SDK installed on your dev environment
 
-### Installation
+### Quickstart
 
-1. **Clone the Repository**
+1. **Clone the Repo**
 
    ```bash
    git clone https://github.com/your-username/lunar-support-ai.git
    cd lunar-support-ai
+   ```
 
+2. Copy the `.env.sample` and set the env vars
 
-### Quickstart
+   ```bash
+   cp .env.sample .env
+   . .env
+   ```
 
-#### TODO
+3. Deploy application
 
+   ```bash
+   cd app
+   ./deploy_run.sh
+   ```
 
 ### License
 
