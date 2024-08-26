@@ -21,7 +21,7 @@ app = Flask(__name__)
 
 gcp_project_id = os.environ.get('GCP_PROJECT_ID','')
 gcp_region = os.environ.get('GCP_REGION','')
-deployment_label = os.environ.get('DEPLOYMENT_LABEL','')
+brand_name = os.environ.get('BRAND','')
 
 llm_client = llm.GCP_GenAI(GCP_PROJECT_ID=gcp_project_id, GCP_REGION=gcp_region)
 bq_obj = bq.BQClient()
@@ -39,7 +39,8 @@ def chat():
 
     try:
         llm_route = llm_client.call_gemini(prompt=prompt_template.prompt_router.format(
-            user_comment=user_comment
+            user_comment=user_comment,
+            brand=brand_name
         ))
 
         print(f'llm route: {llm_route}')
@@ -53,6 +54,7 @@ def chat():
         # LLM Response
         llm_response = llm_client.call_gemini(prompt=prompt_template.prompt_recommendations.format(
             user_comment=user_comment,
+            brand=brand_name,
             chat_history=json.dumps(chat_history),
             catalog=catalog_results
         ))
@@ -73,8 +75,9 @@ def chat():
         # LLM Response
         llm_response = llm_client.call_gemini(prompt=prompt_template.prompt_recommendations.format(
             user_comment=user_comment,
+            brand=brand_name,
             chat_history=json.dumps(chat_history),
-            catalog=''
+            catalog='',
         ))
         llm_response = utils.format_summary(llm_response)
         agent_response = f"{llm_response}"

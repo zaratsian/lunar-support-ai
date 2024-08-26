@@ -36,5 +36,5 @@ def format_summary(input:str):
 
 def format_summary_for_speech(input_str):
     formatted_str = re.sub('(\n|\t|\r)',' ', input_str)
-    formatted_str = re.sub('[^a-zA-Z0-9 \.\!\?\,\']',' ', formatted_str)
+    formatted_str = re.sub('[^a-zA-Z0-9 \\.\\!\\?\\,\']',' ', formatted_str)
     return formatted_str
