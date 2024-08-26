@@ -27,7 +27,7 @@ Before you begin, ensure you have the following:
 1. **Clone the Repo**
 
    ```bash
-   git clone https://github.com/your-username/lunar-support-ai.git
+   git clone https://github.com/zaratsian/lunar-support-ai.git
    cd lunar-support-ai
    ```
 
