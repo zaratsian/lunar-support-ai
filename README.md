@@ -34,7 +34,12 @@ Before you begin, ensure you have the following:
 2. Copy the `.env.sample` and set the env vars
 
    ```bash
+   # Copy .env.sample
    cp .env.sample .env
+
+   # TODO: Update the .env with your own GCP project details, images, and other variables.
+
+   # Set the env vars
    . .env
    ```
 
