@@ -59,14 +59,14 @@ def chat():
             catalog_results = bq_obj.query(user_query=user_comment, table_id='articledata_embeddings')
             catalog_results = '\n'.join([json.dumps(dict(c)) for c in catalog_results])
 
-            prompt=prompt_template.prompt_persona + '\n' + prompt_template.prompt_support.format(
+            prompt=prompt_template.prompt_persona.format(brand=brand) + '\n' + prompt_template.prompt_support.format(
                 user_comment=user_comment,
                 chat_history=json.dumps(chat_history),
                 knowledge_base=catalog_results,
                 brand=brand
             )
         else:
-            prompt=prompt_template.prompt_persona + '\n' + prompt_template.prompt_support.format(
+            prompt=prompt_template.prompt_persona.format(brand=brand) + '\n' + prompt_template.prompt_support.format(
                 user_comment=user_comment,
                 chat_history=json.dumps(chat_history),
                 knowledge_base='',
@@ -91,7 +91,7 @@ def chat():
         print(f'[ EXCEPTION ] {e}')
 
         # LLM Response
-        prompt=prompt_template.prompt_persona + '\n' + prompt_template.prompt_media.format(
+        prompt=prompt_template.prompt_persona.format(brand=brand) + '\n' + prompt_template.prompt_media.format(
             user_comment=user_comment,
             chat_history=json.dumps(chat_history),
             knowledge_base=''

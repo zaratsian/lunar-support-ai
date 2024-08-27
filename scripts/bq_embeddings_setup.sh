@@ -32,9 +32,11 @@ export MEMBER=$(bq show --connection ${GCP_PROJECT_ID}.us-central1.bqml-embeddin
 gcloud projects add-iam-policy-binding '${GCP_PROJECT_NUMBER}' --member='serviceAccount:${MEMBER}' --role='roles/aiplatform.user' --condition=None
 
 # Create Embeddings Model
-CREATE OR REPLACE MODEL `${GCP_PROJECT_ID}.${BQ_DATASET_ID}.${EMBEDDING_MODEL_NAME}`
-REMOTE WITH CONNECTION `${BQ_CONNECTION_ID}`
-OPTIONS (ENDPOINT = 'text-embedding-004');
+bq query --use_legacy_sql=false "
+CREATE OR REPLACE MODEL \`${GCP_PROJECT_ID}.${BQ_DATASET_ID}.${EMBEDDING_MODEL_NAME}\`
+REMOTE WITH CONNECTION \`${BQ_CONNECTION_ID}\`
+OPTIONS (ENDPOINT = 'text-embedding-004'
+);"
 
 # Generate text embeddings for web data
 bq query --use_legacy_sql=false "

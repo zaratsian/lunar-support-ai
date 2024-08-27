@@ -43,7 +43,7 @@ top_matches as (
   select 
     * except (ml_generate_embedding_result),
     ML.DISTANCE(
-      s.ml_generate_embedding_result, 
+      s.text_embedding, 
       q.ml_generate_embedding_result, 
       'COSINE') as distance
   from
