@@ -114,7 +114,7 @@ class GCP_GenAI:
                     safety_settings=safety_config
                 )
 
-            logging.info(f'Gemini LLM response: {response}')
+            #logging.info(f'Gemini LLM response: {response}')
 
             if not return_raw:
                 response = response.candidates[0].content.parts[0].text

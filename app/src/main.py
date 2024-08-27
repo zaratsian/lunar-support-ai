@@ -21,7 +21,7 @@ app = Flask(__name__)
 
 gcp_project_id = os.environ.get('GCP_PROJECT_ID','')
 gcp_region = os.environ.get('GCP_REGION','')
-brand_name = os.environ.get('BRAND','')
+brand = os.environ.get('BRAND','')
 
 llm_client = llm.GCP_GenAI(GCP_PROJECT_ID=gcp_project_id, GCP_REGION=gcp_region)
 bq_obj = bq.BQClient()
@@ -36,28 +36,46 @@ def chat():
     data = request.json
     user_comment = data.get('user_comment', '')
     chat_history = data.get('chat_history', [])
-
     try:
         llm_route = llm_client.call_gemini(prompt=prompt_template.prompt_router.format(
-            user_comment=user_comment,
-            brand=brand_name
-        ))
-
+            user_comment=user_comment
+        )).strip()
         print(f'llm route: {llm_route}')
 
-        # Get Catalog Info
+        # Retrieve Knowledge Base
         if llm_route in ['recommendations','media']:
-            catalog_results = bq_obj.video_query(user_query=user_comment)
+            print(f'Retrieving Media Knowledge Base')
+            catalog_results = bq_obj.query(user_query=user_comment, table_id='webdata_embeddings')
+            catalog_results = '\n'.join([json.dumps(dict(c)) for c in catalog_results])
+
+            prompt=prompt_template.prompt_persona.format(brand=brand) + '\n' + prompt_template.prompt_media.format(
+                user_comment=user_comment,
+                chat_history=json.dumps(chat_history),
+                knowledge_base=catalog_results,
+                brand=brand
+            )
+        elif llm_route in ['cancellation','payments','login']:
+            print(f'Retrieving Article Knowledge Base')
+            catalog_results = bq_obj.query(user_query=user_comment, table_id='articledata_embeddings')
+            catalog_results = '\n'.join([json.dumps(dict(c)) for c in catalog_results])
+
+            prompt=prompt_template.prompt_persona + '\n' + prompt_template.prompt_support.format(
+                user_comment=user_comment,
+                chat_history=json.dumps(chat_history),
+                knowledge_base=catalog_results,
+                brand=brand
+            )
         else:
-            catalog_results = ''
+            prompt=prompt_template.prompt_persona + '\n' + prompt_template.prompt_support.format(
+                user_comment=user_comment,
+                chat_history=json.dumps(chat_history),
+                knowledge_base='',
+                brand=brand
+            )
 
         # LLM Response
-        llm_response = llm_client.call_gemini(prompt=prompt_template.prompt_recommendations.format(
-            user_comment=user_comment,
-            brand=brand_name,
-            chat_history=json.dumps(chat_history),
-            catalog=catalog_results
-        ))
+        print(f'Prompt: {prompt}')
+        llm_response = llm_client.call_gemini(prompt)
         llm_response = utils.format_summary(llm_response)
         agent_response = f"{llm_response}"
 
@@ -73,12 +91,12 @@ def chat():
         print(f'[ EXCEPTION ] {e}')
 
         # LLM Response
-        llm_response = llm_client.call_gemini(prompt=prompt_template.prompt_recommendations.format(
+        prompt=prompt_template.prompt_persona + '\n' + prompt_template.prompt_media.format(
             user_comment=user_comment,
-            brand=brand_name,
             chat_history=json.dumps(chat_history),
-            catalog='',
-        ))
+            knowledge_base=''
+        )
+        llm_response = llm_client.call_gemini(prompt)
         llm_response = utils.format_summary(llm_response)
         agent_response = f"{llm_response}"
 
@@ -95,4 +113,3 @@ def chat():
 
 if __name__ == '__main__':
     app.run(port=8080, debug=True)
-

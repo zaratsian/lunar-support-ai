@@ -43,12 +43,43 @@ Before you begin, ensure you have the following:
    . .env
    ```
 
-3. Deploy application
+3. Create BigQuery Dataset
+
+   ```bash
+   bq --location=us-central1 mk --dataset ${BQ_DATASET_ID}
+   ```
+
+4. Retrieve and load your web data
+
+   ```bash
+   cd scripts
+   python3 load_data_website.py <url>
+   ```
+
+5. Retrieve and load your article data
+
+   ```bash
+   cd scripts
+   python3 load_data_articles.py <url>
+   ```
+
+6. Setup BQ Vertex AI Connection and Embeddings Model
+
+   ```bash
+   cd scripts
+   ./bq_embeddings_setup.sh
+   ```
+
+7. Deploy application
 
    ```bash
    cd app
    ./deploy_run.sh
    ```
+
+Once the app is deployed, you'll see the service running within Cloud Run, then you'll be able to go to that URL in your browser and test out the application. 
+
+Note: Depending on your organization's policies, Cloud Run services may not be exposed publicly as unauthenticated services. Always exercise caution with publicly accessible URLs and applications.
 
 ### License
 

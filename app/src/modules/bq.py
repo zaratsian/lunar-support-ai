@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
+import sys, os
 import logging
 from google.cloud import bigquery
 
@@ -26,33 +26,35 @@ logging.basicConfig(
 class BQClient:
     def __init__(self):
         self.bq_client = bigquery.Client()
+        self.embedding_model_name = os.environ.get('EMBEDDING_MODEL_NAME','')
     
-    def query(self, user_query, dataset_id, table_id, bq_embeddings_model):
-        
+    def query(self, user_query, table_id):
+        print(f'Querying BigQuery Table: {table_id}')
+
         query = f'''
 with query_embeddings as (
-    select text_embedding from 
-    ML.GENERATE_TEXT_EMBEDDING(MODEL `{dataset_id}.{bq_embeddings_model}`,
+    select ml_generate_embedding_result from 
+    ML.GENERATE_EMBEDDING(MODEL `lunar_data_ds.{self.embedding_model_name}`,
         (select "{user_query}" as content),
         STRUCT(TRUE as flatten_json_output)
     )
 ),
 top_matches as (
   select 
-    s.title, s.logLine, s.releaseYear,
+    * except (ml_generate_embedding_result),
     ML.DISTANCE(
-      s.text_embedding,
-      q.text_embedding,
+      s.ml_generate_embedding_result, 
+      q.ml_generate_embedding_result, 
       'COSINE') as distance
   from
-    `{dataset_id}.{table_id}` s,
+    `lunar_data_ds.{table_id}` s,
     query_embeddings q
   order by 
     distance ASC
-  limit 20
+  limit 8
 )
 
-select *
+select * except (distance)
 from top_matches
 order by distance ASC
         '''
@@ -67,4 +69,3 @@ order by distance ASC
         rows = self.bq_client.query_and_wait(query_str)
         results = [r for r in rows]
         return results
-
