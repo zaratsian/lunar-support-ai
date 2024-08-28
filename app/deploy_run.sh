@@ -43,4 +43,5 @@ gcloud run deploy lunar-support-ai-ui \
 --set-env-vars BRAND=$BRAND \
 --set-env-vars BRAND_LOGO_IMG=$BRAND_LOGO_IMG \
 --set-env-vars APP_BACKGROUND_IMG=$APP_BACKGROUND_IMG \
+--set-env-vars EMBEDDING_MODEL_NAME=$EMBEDDING_MODEL_NAME \
 --allow-unauthenticated
