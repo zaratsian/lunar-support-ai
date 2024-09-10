@@ -14,6 +14,7 @@
 
 import os
 import json
+import re
 from flask import Flask, render_template, request, jsonify
 from modules import llm, prompt_template, utils, bq
 
@@ -46,12 +47,30 @@ def chat():
         if llm_route in ['recommendations','media']:
             print(f'Retrieving Media Knowledge Base')
             catalog_results = bq_obj.query(user_query=user_comment, table_id='webdata_embeddings')
-            catalog_results = '\n'.join([json.dumps(dict(c)) for c in catalog_results])
+
+            catalog_results_processed = ''
+            for catalog_result in catalog_results:
+                for k,v in dict(catalog_result).items():
+                    if k in ['releaseYear', 'runtime', 'mediaId', 'logLine', 'contentType', 'studio', 'title', 'content']:
+                        if k == 'content':
+                            json_content = json.loads(dict(catalog_result)['content'])
+                            for k2,v2 in json_content.items():
+                                if k2 in ['minReleaseYear','maxReleaseYear','studio','formattedEpisodeCount','formattedSeasonCount']:
+                                    catalog_results_processed += f'{k2}:\t{v2}\n'
+                                elif k2 in ['childContent']:
+                                    match = re.search(r"'episodeLabel':\s*'([^']+)'", f"{json_content['childContent'][0]}")
+                                    if match:
+                                        catalog_results_processed += f'episodeLabel:\t{match.group(1)}\n'
+
+                        else:
+                            catalog_results_processed += f'{k}:\t{v}\n'
+                
+                catalog_results_processed += '\n'
 
             prompt=prompt_template.prompt_persona.format(brand=brand) + '\n' + prompt_template.prompt_media.format(
                 user_comment=user_comment,
                 chat_history=json.dumps(chat_history),
-                knowledge_base=catalog_results,
+                knowledge_base=catalog_results_processed,
                 brand=brand
             )
         elif llm_route in ['cancellation','payments','login']:
