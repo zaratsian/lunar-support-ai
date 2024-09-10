@@ -51,7 +51,7 @@ top_matches as (
     query_embeddings q
   order by 
     distance ASC
-  limit 8
+  limit 20
 )
 
 select * except (distance)
