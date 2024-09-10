@@ -32,7 +32,13 @@ def format_summary(input:str):
         formatted_str = formatted_str.replace('**', '<b>', 1)
         formatted_str = formatted_str.replace('**', '</b>', 1)
     
+    # Convert markdown to <a href>
+    formatted_str = re.sub(r'\[(.*?)\]\((.*?)\)', r'<a href="\2" target="_blank">\1</a>', formatted_str, flags=re.IGNORECASE)
+    formatted_str = re.sub(r'\[url:\s*(https?://[^\]]+)\]', r'<a href="\1" target="_blank">\1</a>', formatted_str, flags=re.IGNORECASE)
+    formatted_str = re.sub(r'\[Knowledge Base URL:\s*(https?://[^\]]+)\]', r'<a href="\1" target="_blank">\1</a>', formatted_str, flags=re.IGNORECASE)
+    
     return formatted_str
+
 
 def format_summary_for_speech(input_str):
     formatted_str = re.sub('(\n|\t|\r)',' ', input_str)
